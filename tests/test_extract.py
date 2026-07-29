@@ -1,4 +1,7 @@
+from openpyxl import load_workbook
+import extract
 from extract import parse_grand_total, parse_shipments
+from extract import process_pdf
 
 
 def test_placeholder():
@@ -82,3 +85,57 @@ def test_build_workbook_no_warning_when_grand_total_missing():
     ws = wb.active
     rows = [[cell.value for cell in row] for row in ws.iter_rows()]
     assert len(rows) == 4  # header + 2 shipments + sum row, no warning row
+
+
+def test_process_pdf_writes_xlsx_next_to_pdf(tmp_path, monkeypatch):
+    pdf_path = tmp_path / "청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: SAMPLE_TWO_SHIPMENTS)
+
+    result = process_pdf(pdf_path)
+
+    output_path = tmp_path / "청구서.xlsx"
+    assert result["output_path"] == output_path
+    assert output_path.exists()
+    assert result["shipment_count"] == 2
+    assert result["extracted_sum"] == 639320.00
+
+    wb = load_workbook(output_path)
+    ws = wb.active
+    rows = [[cell.value for cell in row] for row in ws.iter_rows()]
+    assert rows[0] == ["선적일자", "AWB번호", "Total 금액"]
+
+
+def test_process_pdf_matches_when_grand_total_agrees(tmp_path, monkeypatch):
+    pdf_path = tmp_path / "청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    text_with_grand_total = SAMPLE_TWO_SHIPMENTS + "\nGrand Total총액 KRW 639,320.00\n"
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: text_with_grand_total)
+
+    result = process_pdf(pdf_path)
+
+    assert result["matched"] is True
+    assert result["grand_total"] == 639320.00
+
+
+def test_process_pdf_returns_none_matched_when_grand_total_missing(tmp_path, monkeypatch):
+    pdf_path = tmp_path / "청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: SAMPLE_TWO_SHIPMENTS)
+
+    result = process_pdf(pdf_path)
+
+    assert result["grand_total"] is None
+    assert result["matched"] is None
+
+
+def test_process_pdf_skips_file_when_no_shipments_found(tmp_path, monkeypatch):
+    pdf_path = tmp_path / "빈청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: "관련 없는 텍스트")
+
+    result = process_pdf(pdf_path)
+
+    assert result["shipment_count"] == 0
+    assert result["output_path"] is None
+    assert not (tmp_path / "빈청구서.xlsx").exists()

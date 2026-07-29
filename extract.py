@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 import pdfplumber
 from openpyxl import Workbook
 
@@ -62,3 +63,35 @@ def build_workbook(shipments, grand_total):
 def extract_pdf_text(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
         return "\n".join(page.extract_text() or "" for page in pdf.pages)
+
+
+def process_pdf(pdf_path):
+    pdf_path = Path(pdf_path)
+    text = extract_pdf_text(pdf_path)
+    shipments = parse_shipments(text)
+    grand_total = parse_grand_total(text)
+
+    if not shipments:
+        return {
+            "output_path": None,
+            "shipment_count": 0,
+            "extracted_sum": 0.0,
+            "grand_total": grand_total,
+            "matched": False,
+        }
+
+    wb, extracted_sum = build_workbook(shipments, grand_total)
+    output_path = pdf_path.with_suffix(".xlsx")
+    wb.save(output_path)
+    matched = (
+        None if grand_total is None
+        else abs(extracted_sum - grand_total) <= 0.01
+    )
+
+    return {
+        "output_path": output_path,
+        "shipment_count": len(shipments),
+        "extracted_sum": extracted_sum,
+        "grand_total": grand_total,
+        "matched": matched,
+    }
