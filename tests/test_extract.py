@@ -205,3 +205,35 @@ def test_main_shows_skipped_validation_when_grand_total_missing(tmp_path, monkey
 
     captured = capsys.readouterr()
     assert "검증 생략" in captured.out
+
+
+def test_main_catches_per_file_exception_and_continues(tmp_path, monkeypatch, capsys):
+    pdf_path = tmp_path / "손상된청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+
+    def raise_error(path):
+        raise ValueError("손상된 PDF입니다")
+
+    monkeypatch.setattr(extract, "extract_pdf_text", raise_error)
+
+    main([str(pdf_path)])
+
+    captured = capsys.readouterr()
+    assert "처리 중 문제가 발생했습니다" in captured.out
+    assert "손상된 PDF입니다" in captured.out
+
+
+def test_main_continues_processing_remaining_files_after_one_fails(tmp_path, monkeypatch, capsys):
+    bad_txt = tmp_path / "메모.txt"
+    bad_txt.write_text("이건 PDF가 아님")
+
+    good_pdf = tmp_path / "청구서.pdf"
+    good_pdf.write_bytes(b"%PDF-fake")
+
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: SAMPLE_TWO_SHIPMENTS)
+
+    main([str(bad_txt), str(good_pdf)])
+
+    captured = capsys.readouterr()
+    assert "PDF 파일이 아닙니다" in captured.out
+    assert "청구서.xlsx" in captured.out
