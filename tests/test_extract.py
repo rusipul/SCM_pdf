@@ -7,10 +7,6 @@ from extract import parse_grand_total, parse_shipments
 from extract import process_pdf
 
 
-def test_placeholder():
-    assert True
-
-
 def test_parse_grand_total_extracts_amount():
     text = (
         "Total Number of Shipments총 발송 건수 29\n"
@@ -186,6 +182,30 @@ def test_main_reports_missing_file(capsys):
 
     captured = capsys.readouterr()
     assert "찾을 수 없습니다" in captured.out
+
+
+def test_main_prints_usage_when_no_args(capsys):
+    main([])
+
+    captured = capsys.readouterr()
+    assert "사용법" in captured.out
+
+
+def test_main_processes_multiple_valid_pdfs_independently(tmp_path, monkeypatch, capsys):
+    first_pdf = tmp_path / "첫번째.pdf"
+    first_pdf.write_bytes(b"%PDF-fake")
+    second_pdf = tmp_path / "두번째.pdf"
+    second_pdf.write_bytes(b"%PDF-fake")
+
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: SAMPLE_TWO_SHIPMENTS)
+
+    main([str(first_pdf), str(second_pdf)])
+
+    assert (tmp_path / "첫번째.xlsx").exists()
+    assert (tmp_path / "두번째.xlsx").exists()
+    captured = capsys.readouterr()
+    assert "첫번째.xlsx" in captured.out
+    assert "두번째.xlsx" in captured.out
 
 
 def test_main_prints_success_summary(tmp_path, monkeypatch, capsys):
