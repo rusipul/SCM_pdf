@@ -151,3 +151,57 @@ def test_process_pdf_skips_file_when_no_shipments_found(tmp_path, monkeypatch):
     assert result["shipment_count"] == 0
     assert result["output_path"] is None
     assert not (tmp_path / "빈청구서.xlsx").exists()
+
+
+from extract import main
+
+
+def test_main_skips_non_pdf_files(tmp_path, capsys):
+    txt_path = tmp_path / "메모.txt"
+    txt_path.write_text("이건 PDF가 아님")
+
+    main([str(txt_path)])
+
+    captured = capsys.readouterr()
+    assert "PDF 파일이 아닙니다" in captured.out
+
+
+def test_main_reports_missing_file(capsys):
+    main(["존재하지않는파일.pdf"])
+
+    captured = capsys.readouterr()
+    assert "찾을 수 없습니다" in captured.out
+
+
+def test_main_prints_success_summary(tmp_path, monkeypatch, capsys):
+    pdf_path = tmp_path / "청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: SAMPLE_TWO_SHIPMENTS)
+
+    main([str(pdf_path)])
+
+    captured = capsys.readouterr()
+    assert "청구서.xlsx" in captured.out
+    assert "2건" in captured.out
+
+
+def test_main_warns_when_zero_shipments_found(tmp_path, monkeypatch, capsys):
+    pdf_path = tmp_path / "빈청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: "관련 없는 텍스트")
+
+    main([str(pdf_path)])
+
+    captured = capsys.readouterr()
+    assert "추출된 건이 없습니다" in captured.out
+
+
+def test_main_shows_skipped_validation_when_grand_total_missing(tmp_path, monkeypatch, capsys):
+    pdf_path = tmp_path / "청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: SAMPLE_TWO_SHIPMENTS)
+
+    main([str(pdf_path)])
+
+    captured = capsys.readouterr()
+    assert "검증 생략" in captured.out

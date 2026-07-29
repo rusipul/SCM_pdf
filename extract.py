@@ -1,4 +1,5 @@
 import re
+import sys
 from pathlib import Path
 import pdfplumber
 from openpyxl import Workbook
@@ -98,3 +99,45 @@ def process_pdf(pdf_path):
         "grand_total": grand_total,
         "matched": matched,
     }
+
+
+def main(argv):
+    if not argv:
+        print("사용법: python extract.py <PDF파일...>")
+        return
+
+    for arg in argv:
+        path = Path(arg)
+
+        if path.suffix.lower() != ".pdf":
+            print(f"[건너뜀] PDF 파일이 아닙니다: {path.name}")
+            continue
+
+        if not path.exists():
+            print(f"[오류] 파일을 찾을 수 없습니다: {path}")
+            continue
+
+        try:
+            result = process_pdf(path)
+        except Exception as exc:
+            print(f"[오류] {path.name} 처리 중 문제가 발생했습니다: {exc}")
+            continue
+
+        if result["shipment_count"] == 0:
+            print(f"[경고] {path.name}: 추출된 건이 없습니다. PDF 양식을 확인하세요.")
+            continue
+
+        if result["grand_total"] is None:
+            status = "검증 생략 (Grand Total 미발견)"
+        elif result["matched"]:
+            status = "일치"
+        else:
+            status = "⚠ 불일치"
+        print(
+            f"[완료] {path.name} → {result['output_path'].name} "
+            f"({result['shipment_count']}건, 합계 검증: {status})"
+        )
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
