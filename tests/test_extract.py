@@ -1,3 +1,6 @@
+import sys
+from unittest.mock import MagicMock
+
 from openpyxl import load_workbook
 import extract
 from extract import parse_grand_total, parse_shipments
@@ -270,6 +273,36 @@ def test_main_processes_next_file_after_one_raises_exception(tmp_path, monkeypat
     captured = capsys.readouterr()
     assert "처리 중 문제가 발생했습니다" in captured.out
     assert "청구서.xlsx" in captured.out
+
+
+def test_main_reconfigures_stdout_when_not_utf8(monkeypatch):
+    fake_stdout = MagicMock()
+    fake_stdout.encoding = "cp949"
+    monkeypatch.setattr(sys, "stdout", fake_stdout)
+
+    main([])
+
+    fake_stdout.reconfigure.assert_called_once_with(encoding="utf-8", errors="replace")
+
+
+def test_main_reconfigures_stdout_when_encoding_is_none(monkeypatch):
+    fake_stdout = MagicMock()
+    fake_stdout.encoding = None
+    monkeypatch.setattr(sys, "stdout", fake_stdout)
+
+    main([])
+
+    fake_stdout.reconfigure.assert_called_once_with(encoding="utf-8", errors="replace")
+
+
+def test_main_does_not_reconfigure_stdout_when_already_utf8(monkeypatch):
+    fake_stdout = MagicMock()
+    fake_stdout.encoding = "utf-8"
+    monkeypatch.setattr(sys, "stdout", fake_stdout)
+
+    main([])
+
+    fake_stdout.reconfigure.assert_not_called()
 
 
 def test_main_prints_mismatch_status_without_crashing(tmp_path, monkeypatch, capsys):
