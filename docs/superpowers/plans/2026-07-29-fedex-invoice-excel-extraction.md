@@ -497,6 +497,14 @@ git add extract.py tests/test_extract.py
 git commit -m "feat: orchestrate PDF-to-Excel processing with grand total validation"
 ```
 
+**실행 중 발견된 후속 수정 (코드 품질 리뷰 반영):** 위 구현대로 커밋한 뒤 품질 리뷰에서 두 가지가 지적되어 같은 태스크 안에서 바로 고쳤다:
+1. 건수 0건(shipments 없음) 분기의 `"matched": False`는 "grand_total을 못 찾음"(`None`)과 의미가 겹쳐 혼동을 줄 수 있음 → `"matched": None`으로 변경 (0건일 때 어차피 `main`이 `shipment_count == 0`을 먼저 확인하고 넘어가므로 동작에는 영향 없음).
+2. `matched: False`(진짜 불일치) 경로를 검증하는 `process_pdf` 테스트가 없었음 → `test_process_pdf_returns_false_matched_when_grand_total_disagrees` 추가.
+3. `process_pdf`에 tri-state(`True`/`False`/`None`) 계약을 설명하는 짧은 docstring 추가.
+
+추가 커밋: `refactor: use None sentinel for matched when no comparison possible, add disagreement test coverage`
+**최종 테스트 수: 14 passed** (아래 Task 7의 "13 passed" 관련 서술은 이 최종 수치인 14를 기준으로 읽을 것).
+
 ---
 
 ### Task 7: CLI 진입점 (`main`)
@@ -622,7 +630,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: 테스트 통과 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
-Expected: PASS (18 passed)
+Expected: PASS (19 passed) — Task 6이 14개로 끝났으므로 14 + 5(Task 7에서 추가되는 테스트) = 19
 
 - [ ] **Step 5: 커밋**
 
