@@ -54,6 +54,18 @@ def test_parse_shipments_skips_total_without_preceding_awb():
     assert parse_shipments(text) == []
 
 
+def test_parse_shipments_extracts_total_when_merged_with_dimension_line():
+    text = (
+        "선적일자 Ship Date 06/15/2026 발송인Sender 수취인Recipient\n"
+        "AWB 번호 Air Waybill Number 872999999999 A B\n"
+        "규격Dimension 36x34x5cm 합계Total 41,710.00\n"
+    )
+    result = parse_shipments(text)
+    assert result == [
+        {"ship_date": "06/15/2026", "awb_number": "872999999999", "total": 41710.00},
+    ]
+
+
 from extract import build_workbook
 
 SHIPMENTS_FIXTURE = [
@@ -258,3 +270,15 @@ def test_main_processes_next_file_after_one_raises_exception(tmp_path, monkeypat
     captured = capsys.readouterr()
     assert "처리 중 문제가 발생했습니다" in captured.out
     assert "청구서.xlsx" in captured.out
+
+
+def test_main_prints_mismatch_status_without_crashing(tmp_path, monkeypatch, capsys):
+    pdf_path = tmp_path / "청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    text_with_wrong_grand_total = SAMPLE_TWO_SHIPMENTS + "\nGrand Total총액 KRW 999,999.00\n"
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: text_with_wrong_grand_total)
+
+    main([str(pdf_path)])
+
+    captured = capsys.readouterr()
+    assert "불일치" in captured.out
