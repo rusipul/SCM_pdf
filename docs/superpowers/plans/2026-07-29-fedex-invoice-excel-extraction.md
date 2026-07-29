@@ -27,7 +27,7 @@
 - Create: `conftest.py`
 - Create: `tests/test_extract.py` (빈 파일로 시작)
 
-- [ ] **Step 1: `requirements.txt` 작성**
+- [x] **Step 1: `requirements.txt` 작성**
 
 ```
 pdfplumber==0.11.10
@@ -35,12 +35,12 @@ openpyxl==3.1.5
 pytest==9.1.1
 ```
 
-- [ ] **Step 2: 의존성 설치 확인**
+- [x] **Step 2: 의존성 설치 확인**
 
 Run: `pip install -r requirements.txt`
 Expected: 이미 설치되어 있으므로 `Requirement already satisfied` 메시지들과 함께 오류 없이 종료
 
-- [ ] **Step 3: `conftest.py` 작성**
+- [x] **Step 3: `conftest.py` 작성**
 
 ```python
 import sys
@@ -49,7 +49,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 ```
 
-- [ ] **Step 4: 빈 테스트 파일 생성**
+- [x] **Step 4: 빈 테스트 파일 생성**
 
 `tests/test_extract.py`:
 
@@ -58,12 +58,12 @@ def test_placeholder():
     assert True
 ```
 
-- [ ] **Step 5: pytest 동작 확인**
+- [x] **Step 5: pytest 동작 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: PASS (`test_placeholder PASSED`)
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add requirements.txt conftest.py tests/test_extract.py
@@ -80,7 +80,7 @@ PDF 1페이지에는 `Grand Total총액 KRW 7,834,180.00` 형식의 줄이 있�
 - Modify: `extract.py` (신규 생성)
 - Test: `tests/test_extract.py`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `tests/test_extract.py`의 `test_placeholder` 아래에 추가:
 
@@ -102,12 +102,12 @@ def test_parse_grand_total_returns_none_when_absent():
     assert parse_grand_total(text) is None
 ```
 
-- [ ] **Step 2: 테스트 실패 확인**
+- [x] **Step 2: 테스트 실패 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: FAIL with `ModuleNotFoundError: No module named 'extract'` (아직 `extract.py`가 없음)
 
-- [ ] **Step 3: 최소 구현 작성**
+- [x] **Step 3: 최소 구현 작성**
 
 `extract.py` 신규 생성:
 
@@ -124,12 +124,12 @@ def parse_grand_total(text):
     return None
 ```
 
-- [ ] **Step 4: 테스트 통과 확인**
+- [x] **Step 4: 테스트 통과 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: PASS (3 passed — placeholder 포함)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add extract.py tests/test_extract.py
@@ -151,7 +151,7 @@ PDF 상세 페이지에는 건마다 아래 세 줄이 이 순서로 나온다 (
 - Modify: `extract.py`
 - Test: `tests/test_extract.py`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `tests/test_extract.py`에 추가:
 
@@ -190,12 +190,12 @@ def test_parse_shipments_skips_total_without_preceding_awb():
     assert parse_shipments(text) == []
 ```
 
-- [ ] **Step 2: 테스트 실패 확인**
+- [x] **Step 2: 테스트 실패 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: FAIL with `ImportError: cannot import name 'parse_shipments' from 'extract'`
 
-- [ ] **Step 3: 최소 구현 작성**
+- [x] **Step 3: 최소 구현 작성**
 
 `extract.py`에 추가:
 
@@ -230,12 +230,12 @@ def parse_shipments(text):
     return shipments
 ```
 
-- [ ] **Step 4: 테스트 통과 확인**
+- [x] **Step 4: 테스트 통과 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: PASS (6 passed)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add extract.py tests/test_extract.py
@@ -250,7 +250,7 @@ git commit -m "feat: parse per-shipment ship date, AWB number, and total"
 - Modify: `extract.py`
 - Test: `tests/test_extract.py`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `tests/test_extract.py`에 추가:
 
@@ -288,12 +288,12 @@ def test_build_workbook_no_warning_when_grand_total_missing():
     assert len(rows) == 4  # header + 2 shipments + sum row, no warning row
 ```
 
-- [ ] **Step 2: 테스트 실패 확인**
+- [x] **Step 2: 테스트 실패 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: FAIL with `ImportError: cannot import name 'build_workbook' from 'extract'`
 
-- [ ] **Step 3: 최소 구현 작성**
+- [x] **Step 3: 최소 구현 작성**
 
 `extract.py`에 추가:
 
@@ -318,12 +318,12 @@ def build_workbook(shipments, grand_total):
     return wb, extracted_sum
 ```
 
-- [ ] **Step 4: 테스트 통과 확인**
+- [x] **Step 4: 테스트 통과 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: PASS (9 passed)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add extract.py tests/test_extract.py
@@ -339,7 +339,7 @@ pdfplumber를 감싸는 얇은 래퍼. 실제 PDF 파일 없이 단위 테스트
 **Files:**
 - Modify: `extract.py`
 
-- [ ] **Step 1: 구현 작성**
+- [x] **Step 1: 구현 작성**
 
 `extract.py`에 추가:
 
@@ -352,12 +352,12 @@ def extract_pdf_text(pdf_path):
         return "\n".join(page.extract_text() or "" for page in pdf.pages)
 ```
 
-- [ ] **Step 2: 기존 테스트가 깨지지 않았는지 확인**
+- [x] **Step 2: 기존 테스트가 깨지지 않았는지 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: PASS (9 passed)
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add extract.py
@@ -374,7 +374,7 @@ git commit -m "feat: add pdfplumber wrapper to extract full document text"
 - Modify: `extract.py`
 - Test: `tests/test_extract.py`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `tests/test_extract.py`에 추가:
 
@@ -438,12 +438,12 @@ def test_process_pdf_skips_file_when_no_shipments_found(tmp_path, monkeypatch):
     assert not (tmp_path / "빈청구서.xlsx").exists()
 ```
 
-- [ ] **Step 2: 테스트 실패 확인**
+- [x] **Step 2: 테스트 실패 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: FAIL with `ImportError: cannot import name 'process_pdf' from 'extract'`
 
-- [ ] **Step 3: 최소 구현 작성**
+- [x] **Step 3: 최소 구현 작성**
 
 `extract.py`에 추가:
 
@@ -485,12 +485,12 @@ def process_pdf(pdf_path):
 
 **중요:** 테스트에서 `monkeypatch.setattr(extract, "extract_pdf_text", ...)`로 모듈 속성을 대체하므로, `process_pdf` 내부에서는 `extract_pdf_text(pdf_path)`를 (임포트한 이름이 아니라) 모듈 전역 이름 그대로 호출해야 patch가 적용된다. 위 구현처럼 같은 파일 안에 정의되어 있으면 자동으로 만족된다.
 
-- [ ] **Step 4: 테스트 통과 확인**
+- [x] **Step 4: 테스트 통과 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: PASS (13 passed)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add extract.py tests/test_extract.py
@@ -513,7 +513,7 @@ git commit -m "feat: orchestrate PDF-to-Excel processing with grand total valida
 - Modify: `extract.py`
 - Test: `tests/test_extract.py`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `tests/test_extract.py`에 추가:
 
@@ -572,12 +572,12 @@ def test_main_shows_skipped_validation_when_grand_total_missing(tmp_path, monkey
     assert "검증 생략" in captured.out
 ```
 
-- [ ] **Step 2: 테스트 실패 확인**
+- [x] **Step 2: 테스트 실패 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: FAIL with `ImportError: cannot import name 'main' from 'extract'`
 
-- [ ] **Step 3: 최소 구현 작성**
+- [x] **Step 3: 최소 구현 작성**
 
 `extract.py`에 추가:
 
@@ -627,12 +627,12 @@ if __name__ == "__main__":
     main(sys.argv[1:])
 ```
 
-- [ ] **Step 4: 테스트 통과 확인**
+- [x] **Step 4: 테스트 통과 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: PASS (19 passed) — Task 6이 14개로 끝났으므로 14 + 5(Task 7에서 추가되는 테스트) = 19
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add extract.py tests/test_extract.py
@@ -646,7 +646,7 @@ git commit -m "feat: add CLI entry point with per-file error handling"
 **Files:**
 - Create: `변환.bat`
 
-- [ ] **Step 1: 배치파일 작성**
+- [x] **Step 1: 배치파일 작성**
 
 `변환.bat`:
 
@@ -660,7 +660,7 @@ pause
 
 `%~dp0`은 이 배치파일이 위치한 폴더 경로이므로, 어느 위치에서 드래그&드롭하든 같은 폴더의 `extract.py`를 정확히 찾는다. `%*`는 드롭된 모든 파일 경로를 그대로 전달한다(공백 포함 경로는 Windows 탐색기가 자동으로 따옴표 처리해서 넘겨준다).
 
-- [ ] **Step 2: 커밋**
+- [x] **Step 2: 커밋**
 
 ```bash
 git add 변환.bat
@@ -673,24 +673,24 @@ git commit -m "feat: add drag-and-drop batch entry point"
 
 자동화 테스트는 합성 데이터로만 이루어졌으므로, 실제 청구서 PDF 형식과 정말 맞는지 마지막으로 검증한다. `FEDEX인보이스.pdf`는 `.gitignore`에 포함되어 있어 저장소에는 없지만 로컬 `C:\Users\USER\DEV\SCM_pdf\`에 존재한다.
 
-- [ ] **Step 1: 커맨드라인으로 직접 실행**
+- [x] **Step 1: 커맨드라인으로 직접 실행**
 
 Run: `python extract.py FEDEX인보이스.pdf`
 Expected: `[완료] FEDEX인보이스.pdf → FEDEX인보이스.xlsx (29건, 합계 검증: 일치)`
 
-- [ ] **Step 2: 생성된 엑셀 육안 확인**
+- [x] **Step 2: 생성된 엑셀 육안 확인**
 
 `FEDEX인보이스.xlsx`를 열어:
 - 29개 데이터 행 + 헤더 + 합계 행 = 31행인지 확인
 - 첫 번째 행이 `05/27/2026 / 872265794268 / 585440.00`인지 원본 PDF 2페이지와 대조
 - 마지막 합계 행이 `7834180.00`인지 확인 (경고 행이 없어야 함)
 
-- [ ] **Step 3: 배치파일로 드래그&드롭 실행**
+- [x] **Step 3: 배치파일로 드래그&드롭 실행**
 
 `FEDEX인보이스.pdf` 파일을 `변환.bat` 위로 드래그&드롭
 Expected: 콘솔 창이 열리고 Step 1과 동일한 완료 메시지가 출력된 뒤 `계속하려면 아무 키나 누르십시오...`로 대기
 
-- [ ] **Step 4: 생성된 xlsx 정리**
+- [x] **Step 4: 생성된 xlsx 정리**
 
 `FEDEX인보이스.xlsx`는 `.gitignore`에 걸려 있어 커밋 대상이 아니다. 그대로 두거나 삭제해도 무방하며 git 상태에는 영향 없음을 `git status`로 확인.
 
