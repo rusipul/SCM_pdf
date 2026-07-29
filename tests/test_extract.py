@@ -237,3 +237,24 @@ def test_main_continues_processing_remaining_files_after_one_fails(tmp_path, mon
     captured = capsys.readouterr()
     assert "PDF 파일이 아닙니다" in captured.out
     assert "청구서.xlsx" in captured.out
+
+
+def test_main_processes_next_file_after_one_raises_exception(tmp_path, monkeypatch, capsys):
+    bad_pdf = tmp_path / "손상된청구서.pdf"
+    bad_pdf.write_bytes(b"%PDF-fake")
+
+    good_pdf = tmp_path / "청구서.pdf"
+    good_pdf.write_bytes(b"%PDF-fake")
+
+    def extract_text_or_raise(path):
+        if path == bad_pdf:
+            raise ValueError("손상된 PDF입니다")
+        return SAMPLE_TWO_SHIPMENTS
+
+    monkeypatch.setattr(extract, "extract_pdf_text", extract_text_or_raise)
+
+    main([str(bad_pdf), str(good_pdf)])
+
+    captured = capsys.readouterr()
+    assert "처리 중 문제가 발생했습니다" in captured.out
+    assert "청구서.xlsx" in captured.out
