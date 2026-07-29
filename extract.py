@@ -1,4 +1,5 @@
 import re
+import pdfplumber
 from openpyxl import Workbook
 
 GRAND_TOTAL_RE = re.compile(r'Grand Total\S*\s*KRW\s*([\d,]+\.\d{2})')
@@ -56,3 +57,8 @@ def build_workbook(shipments, grand_total):
             f"PDF Grand Total: {grand_total:,.2f})"
         ])
     return wb, extracted_sum
+
+
+def extract_pdf_text(pdf_path):
+    with pdfplumber.open(pdf_path) as pdf:
+        return "\n".join(page.extract_text() or "" for page in pdf.pages)
