@@ -1,4 +1,5 @@
 import re
+from openpyxl import Workbook
 
 GRAND_TOTAL_RE = re.compile(r'Grand Total\S*\s*KRW\s*([\d,]+\.\d{2})')
 
@@ -38,3 +39,20 @@ def parse_shipments(text):
             current_date = None
             current_awb = None
     return shipments
+
+
+def build_workbook(shipments, grand_total):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "FedEx 청구 내역"
+    ws.append(["선적일자", "AWB번호", "Total 금액"])
+    for shipment in shipments:
+        ws.append([shipment["ship_date"], shipment["awb_number"], shipment["total"]])
+    extracted_sum = sum(shipment["total"] for shipment in shipments)
+    ws.append(["합계", "", extracted_sum])
+    if grand_total is not None and abs(extracted_sum - grand_total) > 0.01:
+        ws.append([
+            f"⚠ 합계 불일치 (추출 합계: {extracted_sum:,.2f} / "
+            f"PDF Grand Total: {grand_total:,.2f})"
+        ])
+    return wb, extracted_sum

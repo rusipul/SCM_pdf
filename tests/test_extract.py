@@ -49,3 +49,36 @@ def test_parse_shipments_returns_empty_list_when_no_matches():
 def test_parse_shipments_skips_total_without_preceding_awb():
     text = "합계Total 1,000.00\n"
     assert parse_shipments(text) == []
+
+
+from extract import build_workbook
+
+SHIPMENTS_FIXTURE = [
+    {"ship_date": "05/27/2026", "awb_number": "872265794268", "total": 585440.00},
+    {"ship_date": "05/28/2026", "awb_number": "872319321541", "total": 53880.00},
+]
+
+
+def test_build_workbook_writes_header_and_rows():
+    wb, extracted_sum = build_workbook(SHIPMENTS_FIXTURE, grand_total=639320.00)
+    ws = wb.active
+    rows = [[cell.value for cell in row] for row in ws.iter_rows()]
+    assert rows[0] == ["선적일자", "AWB번호", "Total 금액"]
+    assert rows[1] == ["05/27/2026", "872265794268", 585440.00]
+    assert rows[2] == ["05/28/2026", "872319321541", 53880.00]
+    assert rows[3] == ["합계", "", 639320.00]
+    assert extracted_sum == 639320.00
+
+
+def test_build_workbook_flags_mismatch():
+    wb, extracted_sum = build_workbook(SHIPMENTS_FIXTURE, grand_total=999999.00)
+    ws = wb.active
+    last_row = [cell.value for cell in list(ws.iter_rows())[-1]]
+    assert "불일치" in last_row[0]
+
+
+def test_build_workbook_no_warning_when_grand_total_missing():
+    wb, extracted_sum = build_workbook(SHIPMENTS_FIXTURE, grand_total=None)
+    ws = wb.active
+    rows = [[cell.value for cell in row] for row in ws.iter_rows()]
+    assert len(rows) == 4  # header + 2 shipments + sum row, no warning row
