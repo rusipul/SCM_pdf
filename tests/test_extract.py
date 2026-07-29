@@ -118,6 +118,18 @@ def test_process_pdf_matches_when_grand_total_agrees(tmp_path, monkeypatch):
     assert result["grand_total"] == 639320.00
 
 
+def test_process_pdf_returns_false_matched_when_grand_total_disagrees(tmp_path, monkeypatch):
+    pdf_path = tmp_path / "청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    text_with_wrong_grand_total = SAMPLE_TWO_SHIPMENTS + "\nGrand Total총액 KRW 999,999.00\n"
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: text_with_wrong_grand_total)
+
+    result = process_pdf(pdf_path)
+
+    assert result["matched"] is False
+    assert result["grand_total"] == 999999.00
+
+
 def test_process_pdf_returns_none_matched_when_grand_total_missing(tmp_path, monkeypatch):
     pdf_path = tmp_path / "청구서.pdf"
     pdf_path.write_bytes(b"%PDF-fake")

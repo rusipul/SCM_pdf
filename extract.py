@@ -66,6 +66,9 @@ def extract_pdf_text(pdf_path):
 
 
 def process_pdf(pdf_path):
+    """Returns matched=True if grand_total agrees with the extracted sum,
+    False if it disagrees, or None if no comparison could be made (no
+    grand_total present, or no shipments found)."""
     pdf_path = Path(pdf_path)
     text = extract_pdf_text(pdf_path)
     shipments = parse_shipments(text)
@@ -77,7 +80,7 @@ def process_pdf(pdf_path):
             "shipment_count": 0,
             "extracted_sum": 0.0,
             "grand_total": grand_total,
-            "matched": False,
+            "matched": None,
         }
 
     wb, extracted_sum = build_workbook(shipments, grand_total)
