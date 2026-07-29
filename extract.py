@@ -8,3 +8,33 @@ def parse_grand_total(text):
     if match:
         return float(match.group(1).replace(',', ''))
     return None
+
+
+SHIP_DATE_RE = re.compile(r'Ship Date (\d{2}/\d{2}/\d{4})')
+AWB_RE = re.compile(r'Air Waybill Number (\d+)')
+TOTAL_RE = re.compile(r'^합계Total ([\d,]+\.\d{2})$')
+
+
+def parse_shipments(text):
+    shipments = []
+    current_date = None
+    current_awb = None
+    for line in text.splitlines():
+        date_match = SHIP_DATE_RE.search(line)
+        if date_match:
+            current_date = date_match.group(1)
+            continue
+        awb_match = AWB_RE.search(line)
+        if awb_match:
+            current_awb = awb_match.group(1)
+            continue
+        total_match = TOTAL_RE.match(line.strip())
+        if total_match and current_date and current_awb:
+            shipments.append({
+                "ship_date": current_date,
+                "awb_number": current_awb,
+                "total": float(total_match.group(1).replace(',', '')),
+            })
+            current_date = None
+            current_awb = None
+    return shipments
