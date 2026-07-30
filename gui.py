@@ -39,23 +39,25 @@ def run_gui():
     root = Tk()
     root.withdraw()
 
-    pdf_paths = filedialog.askopenfilenames(
-        title="FedEx 청구서 PDF 선택",
-        filetypes=[("PDF 파일", "*.pdf")],
-    )
-    if not pdf_paths:
-        root.destroy()
-        return
+    try:
+        pdf_paths = filedialog.askopenfilenames(
+            title="FedEx 청구서 PDF 선택",
+            filetypes=[("PDF 파일", "*.pdf")],
+        )
+        if not pdf_paths:
+            return
 
-    output_dir = filedialog.askdirectory(title="결과 파일을 저장할 폴더 선택")
-    if not output_dir:
-        root.destroy()
-        return
+        output_dir = filedialog.askdirectory(title="결과 파일을 저장할 폴더 선택")
+        if not output_dir:
+            return
 
-    summary = process_pdfs_for_gui(pdf_paths, output_dir)
-    message = format_summary_message(summary)
-    messagebox.showinfo("처리 결과", message)
-    root.destroy()
+        summary = process_pdfs_for_gui(pdf_paths, output_dir)
+        message = format_summary_message(summary)
+        messagebox.showinfo("처리 결과", message)
+    except Exception as exc:
+        messagebox.showerror("오류", f"예상치 못한 오류가 발생했습니다:\n{exc}")
+    finally:
+        root.destroy()
 
 
 if __name__ == "__main__":
