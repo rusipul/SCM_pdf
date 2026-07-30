@@ -350,6 +350,11 @@ git add gui.py tests/test_gui.py
 git commit -m "feat: add format_summary_message for GUI result display"
 ```
 
+**실행 중 발견된 후속 수정 (코드 품질 리뷰 반영):** `failed` 항목은 Task 2 후속 수정으로 `"파일명: 에러메시지"` 형태인데, 이를 다른 카테고리처럼 쉼표로 join하면 여러 건이 섞여 어디까지가 한 건인지 구분이 안 되는 문제가 있었다 (에러 메시지 자체에 쉼표가 포함될 수도 있음). `failed` 줄만 `"오류:\n  " + "\n  ".join(summary["failed"])`로 변경해 건별로 줄바꿈되도록 했다 (`mismatched`/`empty`는 파일명만 있어 쉼표 join 그대로 유지).
+
+추가 커밋: `fix: separate multiple failed-file entries onto their own lines`
+**최종 테스트 수: `tests/test_gui.py` 12개 (합계 41개 — `test_extract.py` 29개 포함).**
+
 ---
 
 ### Task 4: `gui.py` — `run_gui` (tkinter 다이얼로그)
@@ -402,7 +407,7 @@ if __name__ == "__main__":
 - [ ] **Step 2: 기존 테스트가 깨지지 않았는지 확인**
 
 Run: `python -m pytest tests/test_gui.py tests/test_extract.py -v`
-Expected: PASS (11 + 29 = 40 passed)
+Expected: PASS (12 + 29 = 41 passed)
 
 - [ ] **Step 3: 커밋**
 
