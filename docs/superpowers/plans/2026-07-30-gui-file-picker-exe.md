@@ -28,7 +28,7 @@
 - Modify: `extract.py:69-101`
 - Test: `tests/test_extract.py`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `tests/test_extract.py`의 다른 `test_process_pdf_*` 테스트들 근처에 추가:
 
@@ -48,12 +48,12 @@ def test_process_pdf_saves_to_specified_output_dir(tmp_path, monkeypatch):
     assert not (tmp_path / "청구서.xlsx").exists()
 ```
 
-- [ ] **Step 2: 테스트 실패 확인**
+- [x] **Step 2: 테스트 실패 확인**
 
 Run: `python -m pytest tests/test_extract.py::test_process_pdf_saves_to_specified_output_dir -v`
 Expected: FAIL with `TypeError: process_pdf() got an unexpected keyword argument 'output_dir'`
 
-- [ ] **Step 3: 최소 구현 작성**
+- [x] **Step 3: 최소 구현 작성**
 
 `extract.py:69-101`의 `process_pdf` 함수를 아래로 교체 (docstring과 `output_path` 계산 부분만 변경, 나머지 로직은 동일):
 
@@ -95,12 +95,12 @@ def process_pdf(pdf_path, output_dir=None):
     }
 ```
 
-- [ ] **Step 4: 테스트 통과 확인**
+- [x] **Step 4: 테스트 통과 확인**
 
 Run: `python -m pytest tests/test_extract.py -v`
 Expected: PASS (29 passed — 기존 28개 + 새 테스트 1개. `output_dir` 기본값이 `None`이라 `pdf_path.parent / (pdf_path.stem + ".xlsx")`는 기존 `pdf_path.with_suffix(".xlsx")`와 동일한 경로를 만들어내므로 기존 28개 테스트는 코드 변경 없이 그대로 통과한다.)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add extract.py tests/test_extract.py
@@ -117,7 +117,7 @@ PDF 여러 개를 처리하고 파일명을 성공/불일치/추출실패/오류
 - Create: `gui.py`
 - Create: `tests/test_gui.py`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `tests/test_gui.py` 신규 생성:
 
@@ -202,12 +202,12 @@ def test_process_pdfs_for_gui_uses_filename_not_full_path(monkeypatch, tmp_path)
     assert summary["success"] == ["청구서.pdf"]
 ```
 
-- [ ] **Step 2: 테스트 실패 확인**
+- [x] **Step 2: 테스트 실패 확인**
 
 Run: `python -m pytest tests/test_gui.py -v`
 Expected: FAIL with `ModuleNotFoundError: No module named 'gui'` (아직 `gui.py`가 없음)
 
-- [ ] **Step 3: 최소 구현 작성**
+- [x] **Step 3: 최소 구현 작성**
 
 `gui.py` 신규 생성:
 
@@ -237,12 +237,12 @@ def process_pdfs_for_gui(pdf_paths, output_dir):
 
 **중요:** 테스트에서 `monkeypatch.setattr(gui, "process_pdf", ...)`로 모듈 속성을 대체하므로, `process_pdfs_for_gui` 내부에서는 `process_pdf(path, output_dir=output_dir)`를 모듈 전역 이름 그대로 호출해야 patch가 적용된다. `from extract import process_pdf`로 가져온 이름이 `gui` 모듈의 전역 네임스페이스에 바인딩되므로, 위 구현처럼 작성하면 자동으로 만족된다.
 
-- [ ] **Step 4: 테스트 통과 확인**
+- [x] **Step 4: 테스트 통과 확인**
 
 Run: `python -m pytest tests/test_gui.py -v`
 Expected: PASS (6 passed)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add gui.py tests/test_gui.py
@@ -264,7 +264,7 @@ git commit -m "feat: add process_pdfs_for_gui to classify batch results"
 - Modify: `gui.py`
 - Test: `tests/test_gui.py`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `tests/test_gui.py`에 추가:
 
@@ -315,12 +315,12 @@ def test_format_summary_message_omits_empty_categories():
     assert "오류" not in message
 ```
 
-- [ ] **Step 2: 테스트 실패 확인**
+- [x] **Step 2: 테스트 실패 확인**
 
 Run: `python -m pytest tests/test_gui.py -v`
 Expected: FAIL with `ImportError: cannot import name 'format_summary_message' from 'gui'`
 
-- [ ] **Step 3: 최소 구현 작성**
+- [x] **Step 3: 최소 구현 작성**
 
 `gui.py`에 추가:
 
@@ -338,12 +338,12 @@ def format_summary_message(summary):
     return "\n".join(lines)
 ```
 
-- [ ] **Step 4: 테스트 통과 확인**
+- [x] **Step 4: 테스트 통과 확인**
 
 Run: `python -m pytest tests/test_gui.py -v`
 Expected: PASS (11 passed)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add gui.py tests/test_gui.py
@@ -364,7 +364,7 @@ tkinter 다이얼로그는 실제 화면과 사용자 입력에 의존하므로 
 **Files:**
 - Modify: `gui.py`
 
-- [ ] **Step 1: 구현 작성**
+- [x] **Step 1: 구현 작성**
 
 `gui.py`의 기존 `from pathlib import Path` 아래에 import 한 줄 추가:
 
@@ -404,12 +404,12 @@ if __name__ == "__main__":
 
 최종 `gui.py`는 이 순서로 구성된다: import들 → `process_pdfs_for_gui` → `format_summary_message` → `run_gui` → `if __name__ == "__main__":` 블록.
 
-- [ ] **Step 2: 기존 테스트가 깨지지 않았는지 확인**
+- [x] **Step 2: 기존 테스트가 깨지지 않았는지 확인**
 
 Run: `python -m pytest tests/test_gui.py tests/test_extract.py -v`
 Expected: PASS (12 + 29 = 41 passed)
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add gui.py
@@ -430,7 +430,7 @@ GUI(`gui.py`, 이후 exe)로 대체되므로 기존 드래그&드롭 배치파�
 **Files:**
 - Delete: `변환.bat`
 
-- [ ] **Step 1: 파일 삭제 및 커밋**
+- [x] **Step 1: 파일 삭제 및 커밋**
 
 ```bash
 git rm 변환.bat
@@ -444,17 +444,17 @@ git commit -m "chore: remove drag-and-drop batch file, replaced by GUI"
 **Files:**
 - Create: `requirements-dev.txt`
 
-- [ ] **Step 1: PyInstaller 설치**
+- [x] **Step 1: PyInstaller 설치**
 
 Run: `pip install pyinstaller`
 Expected: 설치 성공 메시지와 함께 종료 (이미 설치돼 있다면 `Requirement already satisfied`)
 
-- [ ] **Step 2: 설치된 정확한 버전 확인**
+- [x] **Step 2: 설치된 정확한 버전 확인**
 
 Run: `pip show pyinstaller`
 Expected: `Name: pyinstaller` 와 `Version: X.Y.Z` 출력 — 이 버전 번호를 다음 단계에서 사용한다.
 
-- [ ] **Step 3: `requirements-dev.txt` 작성**
+- [x] **Step 3: `requirements-dev.txt` 작성**
 
 Step 2에서 확인한 실제 버전 번호로 아래 형식에 맞춰 파일을 만든다 (예시이며, 실제 설치된 버전으로 `X.Y.Z`를 교체할 것):
 
@@ -462,7 +462,7 @@ Step 2에서 확인한 실제 버전 번호로 아래 형식에 맞춰 파일을
 pyinstaller==X.Y.Z
 ```
 
-- [ ] **Step 4: 커밋**
+- [x] **Step 4: 커밋**
 
 ```bash
 git add requirements-dev.txt
@@ -476,7 +476,7 @@ git commit -m "chore: add PyInstaller as a build-only dependency"
 **Files:**
 - Create: `build.bat`
 
-- [ ] **Step 1: 배치파일 작성**
+- [x] **Step 1: 배치파일 작성**
 
 `build.bat`:
 
@@ -490,7 +490,7 @@ echo 빌드 완료: dist\FedEx인보이스변환.exe
 pause
 ```
 
-- [ ] **Step 2: 커밋**
+- [x] **Step 2: 커밋**
 
 ```bash
 git add build.bat
@@ -506,7 +506,7 @@ PyInstaller는 `build/`(중간 산출물), `dist/`(최종 exe), `*.spec`(자동 
 **Files:**
 - Modify: `.gitignore`
 
-- [ ] **Step 1: 현재 `.gitignore` 확인**
+- [x] **Step 1: 현재 `.gitignore` 확인**
 
 Run: `cat .gitignore`
 Expected:
@@ -517,7 +517,7 @@ __pycache__/
 *.pyc
 ```
 
-- [ ] **Step 2: 빌드 산출물 항목 추가**
+- [x] **Step 2: 빌드 산출물 항목 추가**
 
 `.gitignore`를 아래 내용으로 교체:
 
@@ -531,7 +531,7 @@ dist/
 *.spec
 ```
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add .gitignore
@@ -546,7 +546,7 @@ git commit -m "chore: ignore PyInstaller build artifacts"
 
 **Files:** 없음 (수동 검증만)
 
-- [ ] **Step 1: 빌드 실행**
+- [x] **Step 1: 빌드 실행**
 
 Run: `build.bat` (더블클릭 또는 `.\build.bat`)
 Expected: 에러 없이 종료되고 `dist\FedEx인보이스변환.exe` 파일이 생성됨
@@ -554,7 +554,7 @@ Expected: 에러 없이 종료되고 `dist\FedEx인보이스변환.exe` 파일�
 Run: `dir dist\FedEx인보이스변환.exe`
 Expected: 파일이 존재함 (수십 MB 크기가 정상)
 
-- [ ] **Step 2: 실제 샘플 PDF로 exe 실행**
+- [x] **Step 2: 실제 샘플 PDF로 exe 실행**
 
 `FEDEX인보이스.pdf`(로컬에 있는 실제 샘플, git에는 없음)를 프로젝트 폴더가 아닌 다른 임시 폴더에 복사해둔 뒤:
 
@@ -566,7 +566,7 @@ Expected:
 - 잠시 후 메시지박스로 `완료: 1건 / 전체 1건` 표시
 - 지정한 폴더에 `FEDEX인보이스.xlsx`가 생성되어 있고, 열어보면 29개 행 + 헤더 + 합계 행이 정상적으로 들어있음 (이전 CLI 통합 테스트 때와 동일한 내용)
 
-- [ ] **Step 3: 문제 발생 시 대응**
+- [x] **Step 3: 문제 발생 시 대응**
 
 `ModuleNotFoundError`나 pdfplumber/pypdfium2 관련 오류가 exe 실행 중 발생하면, PyInstaller가 해당 패키지의 바이너리를 자동으로 못 찾은 것이다. `build.bat`의 pyinstaller 명령에 `--collect-all pypdfium2` 옵션을 추가해 다시 빌드:
 
@@ -576,12 +576,12 @@ pyinstaller --onefile --windowed --name "FedEx인보이스변환" --collect-all 
 
 수정한 옵션이 실제로 문제를 해결하면 `build.bat`을 이 옵션이 포함된 버전으로 갱신하고 커밋한다.
 
-- [ ] **Step 4: 취소 동작 확인**
+- [x] **Step 4: 취소 동작 확인**
 
 exe를 다시 실행해서 파일 선택창에서 "취소"를 눌러봄
 Expected: 아무 메시지박스도 뜨지 않고 조용히 종료됨 (프로세스가 남아있지 않아야 함)
 
-- [ ] **Step 5: 결과 보고**
+- [x] **Step 5: 결과 보고**
 
 Step 1-4를 모두 통과했다면 완료. Step 3에서 `build.bat`을 수정했다면 그 변경사항이 커밋되어 있는지 `git status`로 확인.
 
