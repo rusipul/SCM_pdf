@@ -64,7 +64,7 @@ def test_process_pdfs_for_gui_classifies_failed(monkeypatch, tmp_path):
 
     summary = process_pdfs_for_gui(["a.pdf"], tmp_path)
 
-    assert summary["failed"] == ["a.pdf"]
+    assert summary["failed"] == ["a.pdf: broken"]
 
 
 def test_process_pdfs_for_gui_uses_filename_not_full_path(monkeypatch, tmp_path):

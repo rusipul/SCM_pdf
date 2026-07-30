@@ -9,8 +9,8 @@ def process_pdfs_for_gui(pdf_paths, output_dir):
         path = Path(pdf_path)
         try:
             result = process_pdf(path, output_dir=output_dir)
-        except Exception:
-            summary["failed"].append(path.name)
+        except Exception as exc:
+            summary["failed"].append(f"{path.name}: {exc}")
             continue
         if result["shipment_count"] == 0:
             summary["empty"].append(path.name)
