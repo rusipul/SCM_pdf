@@ -1,4 +1,5 @@
 from pathlib import Path
+from tkinter import Tk, filedialog, messagebox
 
 from extract import process_pdf
 
@@ -32,3 +33,30 @@ def format_summary_message(summary):
     if summary["failed"]:
         lines.append("오류:\n  " + "\n  ".join(summary["failed"]))
     return "\n".join(lines)
+
+
+def run_gui():
+    root = Tk()
+    root.withdraw()
+
+    pdf_paths = filedialog.askopenfilenames(
+        title="FedEx 청구서 PDF 선택",
+        filetypes=[("PDF 파일", "*.pdf")],
+    )
+    if not pdf_paths:
+        root.destroy()
+        return
+
+    output_dir = filedialog.askdirectory(title="결과 파일을 저장할 폴더 선택")
+    if not output_dir:
+        root.destroy()
+        return
+
+    summary = process_pdfs_for_gui(pdf_paths, output_dir)
+    message = format_summary_message(summary)
+    messagebox.showinfo("처리 결과", message)
+    root.destroy()
+
+
+if __name__ == "__main__":
+    run_gui()
