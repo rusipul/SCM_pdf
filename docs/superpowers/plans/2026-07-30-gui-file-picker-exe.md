@@ -249,6 +249,13 @@ git add gui.py tests/test_gui.py
 git commit -m "feat: add process_pdfs_for_gui to classify batch results"
 ```
 
+**실행 중 발견된 후속 수정 (코드 품질 리뷰 반영):** 위 구현대로 커밋한 뒤, exe는 `--windowed`(콘솔 없음)로 빌드되므로 오류 발생 시 사용자가 원인을 전혀 알 수 없다는 지적이 있었다. `except Exception:` → `except Exception as exc:`로, `summary["failed"].append(path.name)` → `summary["failed"].append(f"{path.name}: {exc}")`로 변경 (기존 CLI `main()`의 `print(f"... {exc}")` 패턴과 동일하게 맞춤). `failed`는 여전히 `list[str]`이므로 이후 태스크(`format_summary_message`)의 처리 방식은 바뀌지 않는다.
+
+`test_process_pdfs_for_gui_classifies_failed`의 마지막 단언도 `assert summary["failed"] == ["a.pdf: broken"]`로 갱신됨.
+
+추가 커밋: `fix: include exception message in failed-file classification`
+**최종 테스트 수: `tests/test_gui.py` 6개, `tests/test_extract.py` 29개 (합계 35개).**
+
 ---
 
 ### Task 3: `gui.py` — `format_summary_message` (순수 로직)
