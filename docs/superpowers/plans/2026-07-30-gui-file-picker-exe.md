@@ -584,3 +584,21 @@ Expected: 아무 메시지박스도 뜨지 않고 조용히 종료됨 (프로세
 - [ ] **Step 5: 결과 보고**
 
 Step 1-4를 모두 통과했다면 완료. Step 3에서 `build.bat`을 수정했다면 그 변경사항이 커밋되어 있는지 `git status`로 확인.
+
+---
+
+**실제 실행 결과 (2026-07-30 진행):**
+
+에이전트 환경에는 마우스/키보드로 실제 파일 선택 대화상자를 클릭할 수단이 없어, Step 2/4의 "더블클릭 후 클릭으로 진행"은 문자 그대로 수행하지 못했다. 대신:
+- 동일한 `gui.py`를 사용하되 tkinter 다이얼로그 대신 커맨드라인 인자로 PDF 경로/출력 폴더를 받는 임시 스모크 테스트 스크립트를 만들어 PyInstaller로 빌드하고, 실제 샘플 PDF(`FEDEX인보이스.pdf`)로 비대화형 실행 — `process_pdfs_for_gui`/`format_summary_message`가 frozen 상태에서도 정상 동작하고, 생성된 xlsx가 29건 + 헤더 + 합계 행으로 이전 CLI 통합 테스트와 동일함을 확인.
+- 실제 GUI exe(`--windowed`)를 백그라운드로 실행해 5초 뒤에도 프로세스가 살아있는지 확인 (콘솔 없이 정상적으로 다이얼로그 대기 상태에 들어갔다는 신호) → 확인됨. 이후 프로세스는 강제 종료.
+- Step 4(취소 시 조용히 종료)는 실제 클릭으로 검증하지 못함 — `run_gui()`의 두 취소 분기(`if not pdf_paths: return`, `if not output_dir: return`)는 Task 4에서 코드 리뷰로 검증됐고 로직상 명백하므로, 이 한계는 허용 가능하다고 판단.
+
+**Step 1에서 실제로 발견되어 고친 문제 2건 (계획이 예상한 "실행해보기 전엔 모른다"는 정확히 이 상황을 위한 것이었음):**
+
+1. **PyInstaller가 charset-normalizer의 mypyc 컴파일 확장을 제대로 못 묶음.** `--collect-all charset_normalizer`를 추가해도 실행 시 `ModuleNotFoundError: No module named '81d243bd2c585b0f4821__mypyc'`로 크래시. 원인은 mypyc가 여러 모듈을 하나의 공유 네이티브 확장으로 컴파일하면서 해시 기반 내부 모듈명을 쓰는 방식이 PyInstaller의 정적 분석과 근본적으로 안 맞는 것. `pip install --no-binary charset-normalizer --force-reinstall --no-deps charset-normalizer`로 순수 Python 버전으로 강제 재설치해 우회 — `build.bat`에 이 줄을 추가.
+2. **`build.bat` 안의 한글 텍스트가 이 머신(활성 코드페이지 949)에서 cmd.exe의 줄 파싱 자체를 깨뜨림.** `chcp 65001`을 앞에 추가해도 고쳐지지 않음을 최소 재현으로 확인 (Korean 텍스트가 REM 주석에만 있어도, echo 문에만 있어도 동일하게 깨짐). 유일하게 확실한 해결책은 `build.bat`을 완전히 ASCII로 다시 쓰는 것 — 이 과정에서 결과 exe 이름도 `FedEx인보이스변환.exe`에서 `FedExInvoiceConverter.exe`로 바뀌었다 (스펙 문서와 이 계획 문서 위쪽의 한글 이름 언급들은 더 이상 실제 파일명과 다름 — 최종 파일명은 `FedExInvoiceConverter.exe`).
+
+추가 커밋: `fix: work around charset-normalizer PyInstaller incompatibility, make build.bat pure ASCII`
+
+**기타 관찰 (조치하지 않음, 참고용):** 빌드된 exe가 약 73MB로 크다 — pandas/matplotlib/lxml 등이 `gui.py`/`extract.py`가 직접 쓰지 않는데도 pdfplumber의 전이 의존성 경로를 통해 딸려 들어간 것으로 보인다. 기능에는 문제 없으므로(이번 태스크의 목표는 정상 동작 확인) 크기 최적화는 범위 밖으로 남겨둔다.

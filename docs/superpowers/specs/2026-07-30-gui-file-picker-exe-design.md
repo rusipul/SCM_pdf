@@ -16,7 +16,7 @@
 ## 아키텍처
 
 ```
-FedEx인보이스변환.exe (PyInstaller로 gui.py를 패키징한 결과물)
+FedExInvoiceConverter.exe (PyInstaller로 gui.py를 패키징한 결과물)
    더블클릭
       → PDF 파일 선택 대화상자 (여러 개 선택 가능, 취소 시 조용히 종료)
       → 저장 폴더 선택 대화상자 (취소 시 조용히 종료)
@@ -41,7 +41,7 @@ FedEx인보이스변환.exe (PyInstaller로 gui.py를 패키징한 결과물)
 ### 3. 빌드 관련 (신규)
 
 - `requirements-dev.txt`: `pyinstaller` (빌드 시에만 필요, 최종 사용자에게는 불필요)
-- `build.bat`: `pyinstaller --onefile --windowed --name "FedEx인보이스변환" gui.py`를 실행하는 한 줄짜리 빌드 스크립트
+- `build.bat`: `pyinstaller --onefile --windowed --name FedExInvoiceConverter gui.py`를 실행하는 빌드 스크립트. (구현 중 실제로 확인된 사항: `build.bat`은 반드시 순수 ASCII여야 한다 — 파일에 한글 바이트가 섞이면 이 개발 머신의 활성 코드페이지(949)에서 `chcp 65001`을 넣어도 cmd.exe의 줄 파싱 자체가 깨진다. 그래서 exe 이름과 스크립트 내 문구를 모두 영문으로 정함. 또한 charset-normalizer의 mypyc 컴파일 확장이 PyInstaller onefile 빌드와 호환되지 않아, `pip install --no-binary charset-normalizer --force-reinstall --no-deps charset-normalizer`로 순수 Python 버전으로 강제 재설치하는 단계가 필요했다.)
 - `.gitignore`에 `build/`, `dist/`, `*.spec` 추가 (PyInstaller가 생성하는 산출물·중간 파일은 커밋 대상이 아님)
 
 ### 4. `변환.bat` 삭제
@@ -51,7 +51,7 @@ GUI로 대체되므로 제거한다.
 ## 데이터 흐름
 
 ```
-사용자가 FedEx인보이스변환.exe 더블클릭
+사용자가 FedExInvoiceConverter.exe 더블클릭
    → PDF 선택 (여러 개 가능) → 취소 시 종료
    → 저장 폴더 선택 → 취소 시 종료
    → 각 PDF: extract_pdf_text → parse_shipments/parse_grand_total → build_workbook
