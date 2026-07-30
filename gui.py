@@ -30,5 +30,5 @@ def format_summary_message(summary):
     if summary["empty"]:
         lines.append(f"건너뜀(추출 실패): {', '.join(summary['empty'])}")
     if summary["failed"]:
-        lines.append(f"오류: {', '.join(summary['failed'])}")
+        lines.append("오류:\n  " + "\n  ".join(summary["failed"]))
     return "\n".join(lines)

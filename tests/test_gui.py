@@ -112,6 +112,20 @@ def test_format_summary_message_includes_failed_names():
     assert "a.pdf" in message
 
 
+def test_format_summary_message_separates_multiple_failed_entries_by_line():
+    summary = {
+        "success": [], "mismatched": [], "empty": [],
+        "failed": ["a.pdf: broken", "b.pdf: 손상됨"],
+    }
+
+    message = format_summary_message(summary)
+
+    assert "a.pdf: broken" in message
+    assert "b.pdf: 손상됨" in message
+    # each failed entry must be on its own line, not comma-joined together
+    assert "a.pdf: broken, b.pdf: 손상됨" not in message
+
+
 def test_format_summary_message_omits_empty_categories():
     summary = {"success": ["a.pdf"], "mismatched": [], "empty": [], "failed": []}
 
