@@ -1,5 +1,5 @@
 import gui
-from gui import process_pdfs_for_gui
+from gui import process_pdfs_for_gui, format_summary_message
 
 
 def _fake_result(shipment_count=2, matched=True):
@@ -76,3 +76,46 @@ def test_process_pdfs_for_gui_uses_filename_not_full_path(monkeypatch, tmp_path)
     summary = process_pdfs_for_gui([str(tmp_path / "청구서.pdf")], tmp_path)
 
     assert summary["success"] == ["청구서.pdf"]
+
+
+def test_format_summary_message_all_success():
+    summary = {"success": ["a.pdf", "b.pdf"], "mismatched": [], "empty": [], "failed": []}
+
+    message = format_summary_message(summary)
+
+    assert "완료: 2건 / 전체 2건" in message
+
+
+def test_format_summary_message_includes_mismatched_names():
+    summary = {"success": [], "mismatched": ["a.pdf"], "empty": [], "failed": []}
+
+    message = format_summary_message(summary)
+
+    assert "불일치" in message
+    assert "a.pdf" in message
+
+
+def test_format_summary_message_includes_empty_names():
+    summary = {"success": [], "mismatched": [], "empty": ["a.pdf"], "failed": []}
+
+    message = format_summary_message(summary)
+
+    assert "a.pdf" in message
+
+
+def test_format_summary_message_includes_failed_names():
+    summary = {"success": [], "mismatched": [], "empty": [], "failed": ["a.pdf"]}
+
+    message = format_summary_message(summary)
+
+    assert "오류" in message
+    assert "a.pdf" in message
+
+
+def test_format_summary_message_omits_empty_categories():
+    summary = {"success": ["a.pdf"], "mismatched": [], "empty": [], "failed": []}
+
+    message = format_summary_message(summary)
+
+    assert "불일치" not in message
+    assert "오류" not in message

@@ -19,3 +19,16 @@ def process_pdfs_for_gui(pdf_paths, output_dir):
         else:
             summary["success"].append(path.name)
     return summary
+
+
+def format_summary_message(summary):
+    total = sum(len(names) for names in summary.values())
+    completed = len(summary["success"]) + len(summary["mismatched"])
+    lines = [f"완료: {completed}건 / 전체 {total}건"]
+    if summary["mismatched"]:
+        lines.append(f"⚠ 합계 불일치: {', '.join(summary['mismatched'])}")
+    if summary["empty"]:
+        lines.append(f"건너뜀(추출 실패): {', '.join(summary['empty'])}")
+    if summary["failed"]:
+        lines.append(f"오류: {', '.join(summary['failed'])}")
+    return "\n".join(lines)
