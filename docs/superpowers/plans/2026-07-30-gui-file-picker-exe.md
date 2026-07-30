@@ -416,6 +416,11 @@ git add gui.py
 git commit -m "feat: add run_gui tkinter entry point"
 ```
 
+**실행 중 발견된 후속 수정 (코드 품질 리뷰 반영):** `--windowed`(콘솔 없음)로 빌드되므로, `run_gui()` 안에서 예상 못한 예외가 나면 아무 설명 없이 창이 그냥 사라져버리는 문제가 있었다 (컴맹 사용자 대상 앱에서 최악의 실패 방식). 전체를 `try/except Exception as exc: messagebox.showerror(...)` / `finally: root.destroy()`로 감싸도록 변경 — 각 분기마다 반복되던 `root.destroy()` 3곳도 `finally` 하나로 통합됨.
+
+추가 커밋: `fix: add top-level crash guard to run_gui so unexpected errors surface visibly`
+**테스트 수는 변동 없음 (41개, 자동 테스트 대상 아님).**
+
 ---
 
 ### Task 5: `변환.bat` 삭제
