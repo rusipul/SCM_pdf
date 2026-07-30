@@ -164,6 +164,21 @@ def test_process_pdf_skips_file_when_no_shipments_found(tmp_path, monkeypatch):
     assert not (tmp_path / "빈청구서.xlsx").exists()
 
 
+def test_process_pdf_saves_to_specified_output_dir(tmp_path, monkeypatch):
+    pdf_path = tmp_path / "청구서.pdf"
+    pdf_path.write_bytes(b"%PDF-fake")
+    output_subdir = tmp_path / "결과"
+    output_subdir.mkdir()
+    monkeypatch.setattr(extract, "extract_pdf_text", lambda path: SAMPLE_TWO_SHIPMENTS)
+
+    result = process_pdf(pdf_path, output_dir=output_subdir)
+
+    expected_path = output_subdir / "청구서.xlsx"
+    assert result["output_path"] == expected_path
+    assert expected_path.exists()
+    assert not (tmp_path / "청구서.xlsx").exists()
+
+
 from extract import main
 
 

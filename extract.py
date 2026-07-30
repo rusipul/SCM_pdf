@@ -66,10 +66,11 @@ def extract_pdf_text(pdf_path):
         return "\n".join(page.extract_text() or "" for page in pdf.pages)
 
 
-def process_pdf(pdf_path):
+def process_pdf(pdf_path, output_dir=None):
     """Returns matched=True if grand_total agrees with the extracted sum,
     False if it disagrees, or None if no comparison could be made (no
-    grand_total present, or no shipments found)."""
+    grand_total present, or no shipments found). Saves the xlsx next to
+    pdf_path unless output_dir is given, in which case it saves there."""
     pdf_path = Path(pdf_path)
     text = extract_pdf_text(pdf_path)
     shipments = parse_shipments(text)
@@ -85,7 +86,8 @@ def process_pdf(pdf_path):
         }
 
     wb, extracted_sum = build_workbook(shipments, grand_total)
-    output_path = pdf_path.with_suffix(".xlsx")
+    target_dir = Path(output_dir) if output_dir is not None else pdf_path.parent
+    output_path = target_dir / (pdf_path.stem + ".xlsx")
     wb.save(output_path)
     matched = (
         None if grand_total is None
