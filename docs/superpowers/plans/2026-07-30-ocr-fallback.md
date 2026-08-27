@@ -1,5 +1,8 @@
 # 스캔 PDF OCR 폴백 Implementation Plan
 
+> **⚠ 보류 (사용 안 함) — 2026-08-27**
+> 최종적으로 OCR 기능은 도입하지 않기로 결정함 (사유는 `docs/superpowers/specs/2026-07-30-ocr-fallback-design.md` 상단 참고 — 건별 합계 라벨 OCR 인식 불안정). **이 계획은 실행되지 않았다.** 아래 태스크들은 하나도 구현되지 않은 상태이며, 참고용으로만 남겨둔다. 이 계획을 실행하라는 지시를 받더라도 먼저 사용자에게 위 결정이 여전히 유효한지 확인할 것.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 텍스트 레이어가 없는 스캔 PDF(예: `fedex운송비.pdf`)를 자동으로 OCR(Tesseract)로 재시도해서 처리할 수 있게 한다.
